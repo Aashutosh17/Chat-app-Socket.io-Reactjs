@@ -1,11 +1,19 @@
 import './App.css';
 import socketIO from 'socket.io-client'
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 const socket = socketIO.connect('http://localhost:4000')
 
 function App() {
   const [msg, setMsg] = useState('')
+
+  const[messages, setMessages] = useState([])
+
+  useEffect(() => {
+    socket.on('reply', (data) => {
+      setMessages([...messages, data])
+    })
+  }, [messages])
 
   const sendMsg = (e) => {
     e.preventDefault()
@@ -17,13 +25,15 @@ function App() {
   }
   setMsg('')
   }
-  
+
   return (
     <div className="App">
       <h2>Simple Chat App</h2>
 
       <ul>
-        <li>first message</li>
+        {
+          messages.map(message => <li key={message.id}>{message.text}</li>)
+        }
       </ul>
 
       <form onSubmit={sendMsg}>
